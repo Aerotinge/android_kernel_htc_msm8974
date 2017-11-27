@@ -481,6 +481,10 @@ static void mdss_dsi_display_on(struct mdss_panel_data *pdata)
 	mdss_dsi_panel_cmds_send(ctrl, &ctrl->display_on_cmds);
 }
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+extern bool dt2w_scr_suspended;
+#endif
+
 static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 {
 	struct mipi_panel_info *mipi;
@@ -510,6 +514,11 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		mdss_dsi_panel_bklt_dcs(ctrl, pdata->panel_info.max_brt);
 
 	PR_DISP_INFO("%s:-\n", __func__);
+
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	dt2w_scr_suspended = false;
+#endif
+
 	return 0;
 }
 
@@ -542,6 +551,11 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		led_trigger_event(bl_led_i2c_trigger, 0); 
 
 	PR_DISP_INFO("%s:-\n", __func__);
+
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	dt2w_scr_suspended = true;
+#endif
+
 	return 0;
 }
 
