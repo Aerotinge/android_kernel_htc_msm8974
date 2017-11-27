@@ -46,6 +46,9 @@
 #include <linux/of_gpio.h>
 #include <mach/devices_cmdline.h>
 #endif
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/doubletap2wake.h>
+#endif
 
 #define HIMAX_I2C_RETRY_TIMES 10
 #define FAKE_EVENT
@@ -6985,6 +6988,12 @@ static int himax8528_suspend(struct device *dev)
 	uint8_t buf[2] = {0};
 	struct himax_ts_data *ts = dev_get_drvdata(dev);
 
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+if (dt2w_switch > 0) {
+		I("Suspend avoided!\n");
+		return 0;
+	} else {
+#endif
 	if(ts->suspended)
 	{
 		I("%s: Already suspended. Skipped.\n", __func__);
@@ -7009,7 +7018,10 @@ static int himax8528_suspend(struct device *dev)
 		I("[himax] %s: Flash dump is going, reject suspend\n",__func__);
 		return 0;
 	}
-	#endif
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	}
+#endif
+#endif
 
 	himax_int_enable(0);
 
